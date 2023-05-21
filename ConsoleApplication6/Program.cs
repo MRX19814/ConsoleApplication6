@@ -28,12 +28,14 @@ class Product
     public decimal Price { get; set; }
 }
 
-class Order <TDelivery> where TDelivery : Delivery // используются конструкторы с параметрами, класс использует обобщение TDelivery, содержит объект класса TDelivery в свойстве Delivery, а также список объектов класса Product в свойстве Products
+class Order<TDelivery> where TDelivery : Delivery // используются конструкторы с параметрами, класс использует обобщение TDelivery, содержит объект класса TDelivery в свойстве Delivery, а также список объектов класса Product в свойстве Products
 {
     public TDelivery Delivery { get; set; }
     public int Number { get; set; }
     public string Description { get; set; }
     public List<Product> Products { get; set; }
+
+    public decimal TotalPrice => CalculateTotalPrice();
 
     public Order(TDelivery delivery, int number, string description)
     {
@@ -53,7 +55,7 @@ class Order <TDelivery> where TDelivery : Delivery // используются �
         Products.Remove(product);
     }
 
-    public decimal CalculateTotalPrice()
+    private decimal CalculateTotalPrice()
     {
         decimal totalPrice = 0;
         foreach (var product in Products)
@@ -64,11 +66,14 @@ class Order <TDelivery> where TDelivery : Delivery // используются �
     }
 }
 
+
 class Address // в классе переопределен метод ToString, используются конструкторы с параметрами
 {
     public string Street { get; set; }
     public string City { get; set; }
     public string PostalCode { get; set; }
+
+    public string FullAddress => ToString();
 
     public Address(string street, string city, string postalCode)
     {
@@ -80,5 +85,20 @@ class Address // в классе переопределен метод ToString,
     public override string ToString()
     {
         return $"{Street}, {City}, {PostalCode}";
+    }
+}
+
+static class OrderManager //  является статическим и содержит статические методы для управления заказами, методы AddOrder и RemoveOrder в данном классе  являются обобщенными
+{
+    private static List<Order<Delivery>> orders = new List<Order<Delivery>>();
+
+    public static void AddOrder<TDelivery>(Order<TDelivery> order) where TDelivery : Delivery
+    {
+        orders.Add(order);
+    }
+
+    public static void RemoveOrder<TDelivery>(Order<TDelivery> order) where TDelivery : Delivery
+    {
+        orders.Remove(order);
     }
 }
